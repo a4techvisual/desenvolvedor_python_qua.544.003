@@ -1,0 +1,6 @@
+===== BILHETE DE CINEMA =====
+Nome: Rômulo
+Idade: 37
+Filme: A Vingança do Frango Assado
+Sala: 5
+Classificação: 18 anos
