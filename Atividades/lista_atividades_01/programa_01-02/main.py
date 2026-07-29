@@ -13,7 +13,7 @@ nome = input("Digite seu nome: ")
 idade = int(input("Digite sua idade: "))
 
 while True:
-    print("\nFILMES EM CARTAZ")
+    print("f\nFILMES EM CARTAZ")
     print("1 - A Volta dos Que Não Foram (Livre)")
     print("2 - A Doda Quadra (12 anos)")
     print("3 - As Tranças do Rei Careca (14 anos)")
