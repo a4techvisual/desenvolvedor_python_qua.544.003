@@ -9,7 +9,7 @@ os.system("cls" if os.name == "nt" else "clear")
 while True:
     # menu
     print(f"{'-'*20} CRUDicionário {'-'*20}")
-    print("1 - Cadastrar movo usuário")
+    print("1 - Cadastrar novo usuário")
     print("2 - Listar todos os usuários")
     print("3 - Alterar dados de um usuário")
     print("4 - Deletar usuário")
@@ -34,17 +34,52 @@ while True:
                 for chave, valor in usuario.items():
                     print(f"{chave.capitalize()}: {valor}")
                 print(f"{'-'*40}")
-            pass
+            continue
         case "3":
-            # TODO: fazer alterar usuário
-            pass
+            nome = input("Informe o nome do Usuário a ser pesquisado: ").strip().title()
+            print(f"{'-'*40}")
+            for usuario in usuarios:
+                if nome in usuario['nome']:
+
+                    # 2° menu
+                    print(" ")
+                    print("- Nome")
+                    print("- CPF")
+                    print("- Email")
+                    print("- Cancelar")
+                    print(" ")
+                    print(f"{'-'*40}")
+                    alterar = input("O que deseja alterar? ").strip().lower()
+                    if alterar in usuario:
+                        os.system("cls" if os.name == "nt" else "clear")
+                        usuario[alterar] = input ("Você deseja alterar para: ").strip()
+                        os.system("cls" if os.name == "nt" else "clear")
+                        print("Informação Alterada com sucesso!")
+                        print(" ")
+
+                else:
+                    # REVIEW: mensagem bugada
+                    print(" ")
+                    print("Usuário não encontrado.")
+                    print(" ")
+                    continue
         case "4":
-             # TODO: fazer alterar usuário
-            pass
+            nome = input("Informe o nome a ser deletado: ").strip().title()
+            for usuario in usuarios:
+                # FIXME: corrigir bloco abaixo
+                if nome in usuario['nome']:
+                    usuarios.remove(usuario)
+                    print("Usuário deletado com sucesso!")
+                else:
+                    # REVIEW: mensagem bugada
+                    print("Usuário não encontrado.")
+                continue
         case "5":
+            os.system("cls" if os.name == "nt" else "clear")
+            print("Encerrando o programa...")
             break
         case _:
-            print("Opção inválida.")
+            print("Opçõao invalida.")
             continue
 
 
