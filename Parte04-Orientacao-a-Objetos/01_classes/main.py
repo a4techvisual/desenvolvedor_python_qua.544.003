@@ -25,8 +25,8 @@ def main():
         usuario.email = input("Informe o e-mail: ").strip().lower()
         usuario.altura = float(input("Informe a altura em metros: ").replace(",","."))
         usuario.exibir_dados()
-        
 
+    
 
 if __name__ == "__main__":
         main()
