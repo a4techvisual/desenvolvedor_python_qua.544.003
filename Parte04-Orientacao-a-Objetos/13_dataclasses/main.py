@@ -16,10 +16,14 @@ def main():
 
     limpar()
 
-    print(usuario)
+    print(f"Nome: {usuario.nome}")
+    print(f"Idade: {usuario.idade} anos")
+    print(f"Altura: {usuario.altura} metros")
 
     del usuario
 
 
 if __name__ == "__main__":
     main()
+
+
