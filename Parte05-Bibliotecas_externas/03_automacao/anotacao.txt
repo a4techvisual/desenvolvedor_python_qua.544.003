@@ -1,0 +1,29 @@
+import pyautogui as auto
+import time
+
+
+def main():
+    auto.PAUSE = 0.5
+
+    auto.press("win")
+    auto.write("firefox")
+    auto.press("enter")
+
+    time.sleep(3)
+
+    auto.hotkey("ctrl", "l")
+    auto.write("https://www.youtube.com")
+    auto.press("enter")
+
+    time.sleep(5)
+
+    # Entra na barra de pesquisa do YouTube
+    auto.press("/")
+
+    # Digita a pesquisa
+    auto.write("musica")
+    auto.press("enter")
+
+
+if __name__ == "__main__":
+    main()
