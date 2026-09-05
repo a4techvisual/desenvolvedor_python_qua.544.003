@@ -41,6 +41,15 @@ def main():
     auto.press("enter")
     auto.sleep(2)
 
+    digitar(f"git push")
+    auto.press("enter")
+    auto.sleep(2)
+
+    digitar(f"exit")
+    auto.press("enter")
+    auto.sleep(2)
+
+
 
 if __name__ == "__main__":
     main()
