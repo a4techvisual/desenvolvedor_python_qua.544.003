@@ -1,0 +1,22 @@
+@font-face {
+    font-family: 'dbzfont';
+    src: url('../fonts/dbzfont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'dbzfont', sans-serif;
+    background-color: #161515;
+    color: #f00000;
+}
+
+h1, h2 {
+    color: #fff;
+    text-align: center;
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+}
