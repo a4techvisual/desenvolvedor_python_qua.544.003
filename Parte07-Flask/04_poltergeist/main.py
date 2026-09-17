@@ -93,6 +93,11 @@ class GitPoltergeist:
         ttk.Button(
             info, text="📁 Mudar pasta",
             command=self.change_folder
+        ).pack(side="right", padx=(8, 0))
+
+        ttk.Button(
+            info, text="🔐 Entrar no GitHub",
+            command=self.github_login
         ).pack(side="right")
 
         self.console = tk.Text(
@@ -153,12 +158,85 @@ class GitPoltergeist:
             self.set_status("Pasta salva. Executando...")
             threading.Thread(target=self.commit, daemon=True).start()
 
+    def github_login(self):
+        """Abre o login oficial do Git Credential Manager sem abrir uma janela CMD."""
+        threading.Thread(target=self._github_login_worker, daemon=True).start()
+
+    def _github_login_worker(self):
+        try:
+            if not self.git_available():
+                raise RuntimeError(
+                    "Git não encontrado. Instale o Git para Windows e tente novamente."
+                )
+
+            # Garante que o Git Credential Manager esteja configurado para o usuário.
+            configure = subprocess.run(
+                ["git", "credential-manager", "configure"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+            if configure.returncode != 0:
+                detail = (configure.stderr or configure.stdout or "").strip()
+                raise RuntimeError(
+                    "O Git Credential Manager não está disponível.\n\n"
+                    + (detail or "Instale/reinstale o Git para Windows.")
+                )
+
+            self.set_status("🔐 Aguardando login no GitHub...")
+            self.log("")
+            self.log("🔐 Abrindo login do GitHub...")
+            self.log("   Faça login no navegador e autorize o Git Credential Manager.")
+
+            env = os.environ.copy()
+            env["GCM_GITHUB_AUTHMODES"] = "oauth"
+
+            login = subprocess.run(
+                ["git", "credential-manager", "github", "login"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                env=env,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+
+            output = ((login.stdout or "") + "\n" + (login.stderr or "")).strip()
+            if output:
+                self.log(output)
+
+            if login.returncode != 0:
+                raise RuntimeError(
+                    "O login do GitHub não foi concluído."
+                    + (f"\n\n{output}" if output else "")
+                )
+
+            self.set_status("✓ GitHub conectado.")
+            self.root.after(0, lambda: messagebox.showinfo(
+                APP_NAME,
+                "✓ GitHub conectado com sucesso!\n\n"
+                "A autenticação fica salva de forma segura no Windows "
+                "e o Git poderá usar essa conta no push."
+            ))
+
+            # Se já houver uma pasta configurada, tenta atualizar o status e executar o Auto Commit.
+            if self.folder and os.path.isdir(self.folder):
+                self.root.after(0, lambda: self.set_status("✓ GitHub conectado. Pronto para usar."))
+
+        except Exception as e:
+            self.log(f"❌ Login GitHub: {e}")
+            self.set_status("❌ Login não concluído.")
+            self.root.after(0, lambda: messagebox.showerror(APP_NAME, str(e)))
+
     def git_available(self):
         try:
             p = subprocess.run(
                 ["git", "--version"],
                 capture_output=True,
-                text=True
+                text=True,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
             )
             return p.returncode == 0
         except FileNotFoundError:
@@ -171,7 +249,8 @@ class GitPoltergeist:
             capture_output=True,
             text=True,
             encoding="utf-8",
-            errors="replace"
+            errors="replace",
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
         )
         output = ((p.stdout or "") + (p.stderr or "")).strip()
         if output:
@@ -228,7 +307,8 @@ class GitPoltergeist:
                 ["git", "rev-parse", "--is-inside-work-tree"],
                 cwd=self.folder,
                 capture_output=True,
-                text=True
+                text=True,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
             )
 
             if check.returncode != 0:
@@ -254,7 +334,8 @@ class GitPoltergeist:
             self.log("[2/4] verificando alterações...")
             diff = subprocess.run(
                 ["git", "diff", "--cached", "--quiet"],
-                cwd=self.folder
+                cwd=self.folder,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
             )
 
             if diff.returncode == 0:

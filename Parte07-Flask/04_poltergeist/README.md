@@ -1,34 +1,15 @@
-# Git Poltergeist v2.0 — Auto Commit
+# Git Poltergeist v2.0
 
-Agora o programa memoriza a pasta do projeto.
+Aplicativo de Auto Commit com a mesma interface do projeto.
 
-## Como funciona
+## GitHub
 
-**Primeira execução:**
-1. Clique no ícone.
-2. Se a pasta padrão não existir, selecione a pasta do projeto uma vez.
-3. A pasta é salva automaticamente.
+Use o botão **🔐 Entrar no GitHub** dentro do programa para autenticar a conta pelo Git Credential Manager. O login é feito pelo navegador e a credencial é armazenada pelo sistema operacional; o aplicativo não salva a senha/token em `config.json`.
 
-**Próximas execuções:**
-- Basta clicar no ícone.
-- O programa abre e executa automaticamente:
-  - `git add .`
-  - `git commit -m "Commit DD/MM/AAAA"`
-  - `git push origin <branch>`
+Em cada PC é necessário fazer o login daquela máquina uma vez. A pasta do projeto também pode ser escolhida/salva em cada PC.
 
-Não é necessário selecionar a pasta novamente.
+O Git para Windows deve estar instalado e disponível no PATH. O Git Credential Manager é o componente usado para a autenticação do GitHub. O push continua sendo feito pelo Git normal.
 
-## Mudar a pasta
+## Gerar EXE
 
-A qualquer momento, use o botão **📁 Mudar pasta**.
-A nova pasta passa a ser a pasta salva para as próximas execuções.
-
-## Link do GitHub
-
-O programa lê automaticamente o `origin` do repositório e mostra o link real do GitHub no rodapé e no console. O link também pode ser clicado para abrir no navegador.
-
-## EXE
-
-Execute `build_exe.bat` para gerar o executável com o ícone de `image/image.ico`.
-
-A autenticação do GitHub continua sendo feita pelo Git instalado no Windows.
+Execute `build_exe.bat` uma vez. O executável será criado em `dist` com `--windowed`, sem janela CMD.
