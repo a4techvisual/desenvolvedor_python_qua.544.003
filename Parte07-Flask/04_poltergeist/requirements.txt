@@ -1,3 +1,1 @@
-# Git Poltergeist v2.0
-# tkinter is included with standard Python for Windows.
-# Git for Windows must be installed and available in PATH.
+pywebview>=6.2.1

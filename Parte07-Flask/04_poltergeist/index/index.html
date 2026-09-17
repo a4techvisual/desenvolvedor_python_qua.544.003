@@ -1,17 +1,24 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Git Poltergeist v2.0</title>
-<link rel="stylesheet" href="../font/style.css">
-</head>
-<body>
-<main class="card">
-  <img src="../image/logo.png" alt="Git Poltergeist" class="logo">
-  <h1>Git Poltergeist v2.0</h1>
-  <p>Auto Commit para GitHub</p>
-  <p>Use <strong>main.py</strong> para executar a interface desktop.</p>
-</main>
-</body>
-</html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git Poltergeist</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1020;color:#eaf0ff;font-family:Segoe UI,Arial,sans-serif}.app{max-width:1050px;margin:auto;padding:28px}.header{display:flex;align-items:center;gap:16px;margin-bottom:22px}.logo{width:64px;height:64px;border-radius:18px;object-fit:cover}h1{margin:0;font-size:28px}.sub{color:#8e9ab8;margin-top:5px}.card{background:#121a2e;border:1px solid #263451;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 14px 35px #0004}.row{display:flex;gap:10px;align-items:center}.folder{flex:1;background:#0a0f1d;border:1px solid #2a3959;border-radius:10px;padding:12px;color:#cbd6ee;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;background:#4057d6;color:white}button:hover{filter:brightness(1.12)}button.secondary{background:#263451}.console{height:300px;background:#070b14;border:1px solid #263451;border-radius:12px;padding:14px;overflow:auto;font:13px Consolas,monospace;white-space:pre-wrap;color:#dbe6ff}.bottom{display:flex;justify-content:space-between;gap:15px;align-items:center}.status{color:#9eafd1}.link{color:#75a7ff;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#1d2a47;color:#a9bbdf;font-size:12px}
+</style></head>
+<body><div class="app">
+<div class="header"><img class="logo" src="../image/logo.png"><div><h1>👻 Git Poltergeist</h1><div class="sub">Auto Commit • WebView</div></div></div>
+<div class="card"><div class="badge">PROJETO SALVO</div><div class="row" style="margin-top:12px"><div id="folder" class="folder">Carregando...</div><button class="secondary" onclick="changeFolder()">📁 Mudar pasta</button></div></div>
+<div class="card"><div class="bottom"><div><strong>Status</strong><div id="status" class="status">Iniciando...</div></div><button onclick="runCommit()">🚀 EXECUTAR NOVAMENTE</button></div></div>
+<div class="card"><div class="bottom" style="margin-bottom:10px"><strong>Console</strong><a id="link" class="link" href="#" onclick="openRemote();return false;"></a></div><div id="console" class="console"></div></div>
+</div>
+<script>
+function setFolder(v){document.getElementById('folder').textContent=v||'Nenhuma pasta configurada'}
+function setStatus(v){document.getElementById('status').textContent=v}
+function setLink(v){const e=document.getElementById('link');e.textContent=v?'🔗 '+v:''}
+function addLog(v){const c=document.getElementById('console');c.textContent+=String(v)+'\n';c.scrollTop=c.scrollHeight}
+async function changeFolder(){try{const r=await window.pywebview.api.change_folder();if(r&&r.folder){setFolder(r.folder);addLog('📁 Pasta salva: '+r.folder);runCommit()}}catch(e){addLog('❌ '+e)}}
+async function runCommit(){setStatus('Executando...');try{await window.pywebview.api.run_commit()}catch(e){addLog('❌ '+e);setStatus('❌ Erro.')}}
+async function openRemote(){try{await window.pywebview.api.open_remote()}catch(e){}}
+window.addEventListener('pywebviewready',async()=>{const i=await window.pywebview.api.get_info();setFolder(i.folder);setLink(i.remote);runCommit()})
+</script></body></html>
