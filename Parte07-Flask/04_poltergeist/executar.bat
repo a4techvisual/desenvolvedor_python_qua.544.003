@@ -1,4 +1,3 @@
 @echo off
-cd /d "%~dp0"
-start "" pythonw.exe main.py
+start "" wscript.exe "%~dp0executar.vbs"
 exit /b 0
