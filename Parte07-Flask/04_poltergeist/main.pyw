@@ -1,12 +1,21 @@
 import json
 import os
 import subprocess
+import sys
 import threading
 import tkinter as tk
 from datetime import date
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 import webbrowser
+
+# Compatibilidade com PyInstaller --windowed/--noconsole: nesses modos
+# o Windows pode deixar stdout/stderr como None.
+if os.name == "nt":
+    if sys.stdout is None:
+        sys.stdout = open(os.devnull, "w")
+    if sys.stderr is None:
+        sys.stderr = open(os.devnull, "w")
 
 APP_NAME = "Git Poltergeist v2.0"
 DEFAULT_PROJECT = r"C:\Users\ALUNO\Rômulo Delalíbera Júnior\desenvolvedor_python_qua.544.003"

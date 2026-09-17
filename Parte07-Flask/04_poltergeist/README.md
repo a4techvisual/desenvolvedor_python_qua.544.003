@@ -1,18 +1,30 @@
-# Git Poltergeist v2.0
+# Git Poltergeist v2.0 — ZERO CMD
 
-## Como abrir sem CMD
+Esta versão foi preparada para o uso normal **sem nenhuma janela CMD**.
 
-Use **executar.vbs** para abrir o programa sem janela preta do CMD.
-Se o EXE já tiver sido gerado em `dist`, o VBS abre o EXE. Se não houver EXE, ele tenta abrir `main.pyw` usando `pythonw.exe`, também sem console.
+## Como usar
 
-Para gerar o EXE definitivo no Windows, execute `build_exe.bat` uma vez. Depois use `dist\Git Poltergeist v2.0.exe` ou `executar.vbs`.
+1. Na primeira vez, execute `CRIAR_EXE.vbs` para gerar o executável.
+2. Depois abra diretamente:
+   `dist\Git Poltergeist v2.0.exe`
+3. Para uso diário, crie um atalho desse `.exe` na Área de Trabalho e coloque o ícone `image\image.ico` no atalho.
+4. Não use `executar.bat`: ele foi removido desta versão justamente para evitar a abertura do CMD.
 
-## Funcionamento
-- Ao abrir, carrega a pasta salva e executa o Auto Commit automaticamente.
-- O botão **▶ Executar Commit** permite repetir o processo manualmente quando quiser.
-- O botão do GitHub verifica a autenticação já existente nesta máquina.
-- Quando conectado, ele mostra a conta e oferece **Trocar conta** e **Deslogar**.
-- Git e Git Credential Manager são executados sem abrir janelas de console.
+Também é possível abrir `executar.vbs`; ele inicia o EXE de forma oculta, sem console.
 
-## Importante
-O login do GitHub é por computador. Em outro PC, é necessário autenticar a conta naquele PC.
+## Comportamento
+
+- Ao abrir o programa, o Auto Commit é executado automaticamente.
+- O botão `▶ Executar Commit` permite executar novamente quando você quiser.
+- A pasta do projeto fica salva.
+- O GitHub é verificado automaticamente.
+- Se já houver uma conta autenticada nesta máquina, ela é identificada.
+- O botão do GitHub fica dinâmico: entrar, trocar conta ou deslogar.
+- Git, Git Credential Manager e o navegador são chamados sem janela de console.
+- O link do remote do GitHub aparece dentro da interface.
+
+## Importante sobre o EXE
+
+O executável final é criado com PyInstaller em modo `--windowed/--noconsole`. Esse é o modo próprio para aplicações gráficas do Windows sem console.
+
+Para usar o programa em outro PC, gere/leve o EXE e tenha o Git para Windows instalado. A autenticação do GitHub precisa ser feita separadamente em cada PC.

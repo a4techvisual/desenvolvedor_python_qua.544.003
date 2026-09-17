@@ -1,17 +1,11 @@
 Git Poltergeist v2.0
-====================
+├── main.py / main.pyw       -> programa
+├── CRIAR_EXE.vbs            -> cria o EXE sem mostrar CMD
+├── executar.vbs             -> abre o EXE sem mostrar CMD
+├── build_exe.bat             -> alternativa de compilação (não usar para abrir o programa)
+├── Git Poltergeist v2.0.spec
+├── image\                   -> ícone/logo/GIF
+├── index\                   -> arquivos da interface original
+└── font\                    -> fontes/estilos
 
-main.py
-index/index.html
-index/style.css
-image/logo.png
-image/poltergeist.gif
-image/image.ico
-font/DejaVuSans.ttf
-font/style.css
-requirements.txt
-.gitignore
-executar.bat
-build_exe.bat
-Git Poltergeist v2.0.spec
-README.md
+O arquivo executar.bat foi removido para impedir o fluxo de inicialização via CMD.
