@@ -1,16 +1,23 @@
 @echo off
-title Git Poltergeist v2.0 - WebView
+title Git Poltergeist v2.0 - Gerar EXE
 cd /d "%~dp0"
-python -m pip install --upgrade pywebview pyinstaller
+
+python -m pip install --upgrade pyinstaller
 if errorlevel 1 goto erro
-pyinstaller --noconfirm --clean --onefile --windowed --add-data "index;index" --add-data "image;image" --add-data "font;font" --icon="image\image.ico" --name "Git Poltergeist v2.0" main.py
+
+pyinstaller --noconfirm --clean --onefile --windowed --icon="image\image.ico" --name "Git Poltergeist v2.0" main.py
 if errorlevel 1 goto erro
+
 echo.
-echo EXE criado em:
+echo ==========================================
+echo EXE criado com sucesso:
 echo %cd%\dist\Git Poltergeist v2.0.exe
+echo ==========================================
 pause
 exit /b 0
+
 :erro
-echo Erro ao gerar o EXE.
+echo.
+echo Nao foi possivel gerar o EXE.
 pause
 exit /b 1
