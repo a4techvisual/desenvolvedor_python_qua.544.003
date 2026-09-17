@@ -1,15 +1,24 @@
 # Git Poltergeist v2.0
 
-Aplicativo de Auto Commit com a mesma interface do projeto.
+Aplicativo de Auto Commit mantendo a interface e a estrutura do projeto.
 
-## GitHub
+## O que mudou
 
-Use o botão **🔐 Entrar no GitHub** dentro do programa para autenticar a conta pelo Git Credential Manager. O login é feito pelo navegador e a credencial é armazenada pelo sistema operacional; o aplicativo não salva a senha/token em `config.json`.
+- O programa **não executa o commit automaticamente ao abrir**.
+- O commit só acontece quando você aperta **▶ Executar Commit**.
+- O botão **🔐 Entrar no GitHub** continua disponível.
+- Ao abrir o programa, ele verifica se já existe autenticação do GitHub nesta máquina.
+- O status mostra **✓ conectado** ou **⚠ não conectado**.
+- A autenticação usa o Git Credential Manager e não salva senha/token no `config.json`.
+- Os processos do Git/GCM são executados sem janela CMD.
+- O EXE deve ser gerado com `--windowed`, portanto não abre uma janela de console.
 
-Em cada PC é necessário fazer o login daquela máquina uma vez. A pasta do projeto também pode ser escolhida/salva em cada PC.
+## GitHub já conectado
 
-O Git para Windows deve estar instalado e disponível no PATH. O Git Credential Manager é o componente usado para a autenticação do GitHub. O push continua sendo feito pelo Git normal.
+Se o Git Credential Manager já tiver uma conta do GitHub autenticada nesta máquina, o programa identifica isso ao abrir. Não é necessário fazer login novamente.
 
-## Gerar EXE
+## Gerar EXE sem CMD
 
-Execute `build_exe.bat` uma vez. O executável será criado em `dist` com `--windowed`, sem janela CMD.
+Execute `build_exe.bat` uma vez. O executável será criado em `dist` com `--windowed`.
+
+Para uso normal, abra **Git Poltergeist v2.0.exe**. O `executar.bat` usa `pythonw.exe` para iniciar o programa sem manter um console aberto.

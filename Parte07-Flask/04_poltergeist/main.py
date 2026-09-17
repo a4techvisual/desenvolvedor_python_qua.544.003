@@ -1,7 +1,6 @@
 import json
 import os
 import subprocess
-import sys
 import threading
 import tkinter as tk
 from datetime import date
@@ -10,11 +9,7 @@ from tkinter import filedialog, messagebox, ttk
 import webbrowser
 
 APP_NAME = "Git Poltergeist v2.0"
-
-# Pasta padrão do projeto. Na primeira execução ela já fica selecionada.
 DEFAULT_PROJECT = r"C:\Users\ALUNO\Rômulo Delalíbera Júnior\desenvolvedor_python_qua.544.003"
-
-# A pasta escolhida fica salva para as próximas execuções.
 CONFIG_DIR = Path(os.environ.get("APPDATA", str(Path.home()))) / "GitPoltergeist"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -35,7 +30,6 @@ def load_project_folder():
 
     if os.path.isdir(DEFAULT_PROJECT):
         return DEFAULT_PROJECT
-
     return ""
 
 
@@ -47,6 +41,19 @@ def save_project_folder(folder):
     )
 
 
+def hidden_process_kwargs():
+    """Configura subprocessos para nunca criarem uma janela CMD no Windows."""
+    kwargs = {
+        "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0),
+    }
+    if os.name == "nt":
+        startup = subprocess.STARTUPINFO()
+        startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startup.wShowWindow = 0
+        kwargs["startupinfo"] = startup
+    return kwargs
+
+
 class GitPoltergeist:
     def __init__(self, root):
         self.root = root
@@ -56,9 +63,11 @@ class GitPoltergeist:
 
         self.folder = load_project_folder()
         self.remote_url = ""
+        self.github_account = ""
+        self.running = False
 
         self.build()
-        self.root.after(350, self.auto_start)
+        self.root.after(250, self.startup_check)
 
     def build(self):
         style = ttk.Style()
@@ -76,7 +85,7 @@ class GitPoltergeist:
         ).pack(anchor="w")
 
         ttk.Label(
-            main, text="Auto Commit • execução automática",
+            main, text="Auto Commit • execução manual",
             font=("Segoe UI", 10)
         ).pack(anchor="w", pady=(0, 10))
 
@@ -91,14 +100,28 @@ class GitPoltergeist:
         self.folder_label.pack(side="left", fill="x", expand=True)
 
         ttk.Button(
+            info, text="▶ Executar Commit",
+            command=self.start_commit
+        ).pack(side="right", padx=(8, 0))
+
+        ttk.Button(
             info, text="📁 Mudar pasta",
             command=self.change_folder
         ).pack(side="right", padx=(8, 0))
 
+        github_box = ttk.Frame(info)
+        github_box.pack(side="right")
+
         ttk.Button(
-            info, text="🔐 Entrar no GitHub",
+            github_box, text="🔐 Entrar no GitHub",
             command=self.github_login
-        ).pack(side="right")
+        ).pack(side="left")
+
+        self.github_status = ttk.Label(
+            github_box, text="  • verificando...",
+            font=("Segoe UI", 9)
+        )
+        self.github_status.pack(side="left", padx=(5, 0))
 
         self.console = tk.Text(
             main, font=("Consolas", 10), wrap="word",
@@ -109,7 +132,7 @@ class GitPoltergeist:
         bottom = ttk.Frame(main)
         bottom.pack(fill="x", pady=(10, 0))
 
-        self.status = ttk.Label(bottom, text="Iniciando...")
+        self.status = ttk.Label(bottom, text="Pronto. Clique em Executar Commit.")
         self.status.pack(side="left")
 
         self.link = ttk.Label(
@@ -132,21 +155,28 @@ class GitPoltergeist:
     def set_status(self, text):
         self.root.after(0, lambda: self.status.configure(text=text))
 
-    def auto_start(self):
+    def set_github_status(self, text):
+        self.root.after(0, lambda: self.github_status.configure(text=text))
+
+    def startup_check(self):
         if not self.folder:
             self.log("⚠ Nenhuma pasta configurada.")
             self.log("Escolha a pasta uma única vez. Ela ficará salva.")
             self.set_status("Selecione a pasta.")
             self.change_folder()
-            return
+        else:
+            self.log("✓ Pasta salva carregada.")
+            self.set_status("Pronto. Clique em Executar Commit.")
 
-        threading.Thread(target=self.commit, daemon=True).start()
+        threading.Thread(target=self.check_github_auth, daemon=True).start()
 
     def change_folder(self):
         folder = filedialog.askdirectory(
             title="Selecione a pasta principal do projeto",
-            initialdir=self.folder if self.folder and os.path.isdir(self.folder)
-            else str(Path.home())
+            initialdir=(
+                self.folder if self.folder and os.path.isdir(self.folder)
+                else str(Path.home())
+            )
         )
 
         if folder:
@@ -155,12 +185,91 @@ class GitPoltergeist:
             self.folder_label.configure(text=folder)
             self.log("")
             self.log(f"📁 Pasta salva: {folder}")
-            self.set_status("Pasta salva. Executando...")
-            threading.Thread(target=self.commit, daemon=True).start()
+            self.set_status("Pasta salva. Clique em Executar Commit.")
+
+    def start_commit(self):
+        if self.running:
+            return
+
+        if not self.folder:
+            self.change_folder()
+            if not self.folder:
+                return
+
+        if not os.path.isdir(self.folder):
+            messagebox.showerror(APP_NAME, "A pasta salva não existe mais. Escolha outra pasta.")
+            self.change_folder()
+            return
+
+        self.running = True
+        self.set_status("Executando commit...")
+        threading.Thread(target=self.commit, daemon=True).start()
+
+    def finish_run(self):
+        self.running = False
+        self.root.after(0, lambda: None)
 
     def github_login(self):
-        """Abre o login oficial do Git Credential Manager sem abrir uma janela CMD."""
+        if self.running:
+            self.log("⚠ Aguarde o Auto Commit terminar antes de iniciar o login.")
+            return
         threading.Thread(target=self._github_login_worker, daemon=True).start()
+
+    def check_github_auth(self):
+        """Verifica autenticação existente sem abrir navegador, diálogo ou CMD."""
+        account = ""
+
+        # Primeiro verifica o Git Credential Manager, que é o autenticador usado pelo Git push.
+        try:
+            p = subprocess.run(
+                ["git", "credential-manager", "github", "list"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=8,
+                **hidden_process_kwargs()
+            )
+            output = ((p.stdout or "") + "\n" + (p.stderr or "")).strip()
+            if p.returncode == 0 and output:
+                lower = output.lower()
+                if "no account" not in lower and "no accounts" not in lower and "not logged" not in lower:
+                    lines = [line.strip() for line in output.splitlines() if line.strip()]
+                    if lines:
+                        account = lines[0]
+        except Exception:
+            pass
+
+        # Se o GitHub CLI estiver instalado, também reconhece uma sessão já autenticada.
+        if not account:
+            try:
+                p = subprocess.run(
+                    ["gh", "auth", "status", "--active", "--hostname", "github.com"],
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    timeout=8,
+                    **hidden_process_kwargs()
+                )
+                output = ((p.stdout or "") + "\n" + (p.stderr or "")).strip()
+                if p.returncode == 0 and output:
+                    for line in output.splitlines():
+                        if "logged in to github.com" in line.lower():
+                            account = line.strip()
+                            break
+                    if not account:
+                        account = "GitHub CLI autenticado"
+            except Exception:
+                pass
+
+        self.github_account = account
+        if account:
+            self.set_github_status("  • ✓ conectado")
+            self.log(f"🔐 GitHub: já conectado ({account})")
+        else:
+            self.set_github_status("  • ⚠ não conectado")
+            self.log("🔐 GitHub: nenhuma autenticação encontrada nesta máquina.")
 
     def _github_login_worker(self):
         try:
@@ -169,14 +278,14 @@ class GitPoltergeist:
                     "Git não encontrado. Instale o Git para Windows e tente novamente."
                 )
 
-            # Garante que o Git Credential Manager esteja configurado para o usuário.
             configure = subprocess.run(
                 ["git", "credential-manager", "configure"],
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                timeout=15,
+                **hidden_process_kwargs()
             )
             if configure.returncode != 0:
                 detail = (configure.stderr or configure.stdout or "").strip()
@@ -200,7 +309,8 @@ class GitPoltergeist:
                 encoding="utf-8",
                 errors="replace",
                 env=env,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                timeout=300,
+                **hidden_process_kwargs()
             )
 
             output = ((login.stdout or "") + "\n" + (login.stderr or "")).strip()
@@ -213,18 +323,20 @@ class GitPoltergeist:
                     + (f"\n\n{output}" if output else "")
                 )
 
-            self.set_status("✓ GitHub conectado.")
+            self.check_github_auth()
+            self.set_status("✓ GitHub conectado. Pronto para usar.")
             self.root.after(0, lambda: messagebox.showinfo(
                 APP_NAME,
                 "✓ GitHub conectado com sucesso!\n\n"
-                "A autenticação fica salva de forma segura no Windows "
-                "e o Git poderá usar essa conta no push."
+                "Agora clique em '▶ Executar Commit' quando quiser enviar as alterações."
             ))
 
-            # Se já houver uma pasta configurada, tenta atualizar o status e executar o Auto Commit.
-            if self.folder and os.path.isdir(self.folder):
-                self.root.after(0, lambda: self.set_status("✓ GitHub conectado. Pronto para usar."))
-
+        except subprocess.TimeoutExpired:
+            self.log("❌ Login GitHub: tempo limite excedido.")
+            self.set_status("❌ Login não concluído.")
+            self.root.after(0, lambda: messagebox.showerror(
+                APP_NAME, "O login demorou demais e foi encerrado."
+            ))
         except Exception as e:
             self.log(f"❌ Login GitHub: {e}")
             self.set_status("❌ Login não concluído.")
@@ -236,10 +348,13 @@ class GitPoltergeist:
                 ["git", "--version"],
                 capture_output=True,
                 text=True,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                encoding="utf-8",
+                errors="replace",
+                timeout=8,
+                **hidden_process_kwargs()
             )
             return p.returncode == 0
-        except FileNotFoundError:
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
     def run_git(self, args):
@@ -250,9 +365,9 @@ class GitPoltergeist:
             text=True,
             encoding="utf-8",
             errors="replace",
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            **hidden_process_kwargs()
         )
-        output = ((p.stdout or "") + (p.stderr or "")).strip()
+        output = ((p.stdout or "") + "\n" + (p.stderr or "")).strip()
         if output:
             self.log(output)
         return p.returncode, output
@@ -270,11 +385,8 @@ class GitPoltergeist:
             )
             return
 
-        # Mostra o link real do remote no rodapé.
-        self.root.after(0, lambda: self.link.configure(text=f"🔗 {url}"))
         self.remote_url = url
-
-        # Também coloca no console para ficar fácil copiar.
+        self.root.after(0, lambda: self.link.configure(text=f"🔗 {url}"))
         self.log(f"🔗 GitHub: {url}")
 
     def open_remote(self):
@@ -283,7 +395,6 @@ class GitPoltergeist:
 
     def commit(self):
         try:
-            self.set_status("Executando...")
             self.log("=" * 70)
             self.log("👻 GIT POLTERGEIST v2.0")
             self.log("=" * 70)
@@ -297,29 +408,26 @@ class GitPoltergeist:
                     "Git não encontrado. Instale o Git para Windows e tente novamente."
                 )
 
-            # Descobre o link antes de qualquer operação.
+            self.log("🔐 Verificando login do GitHub...")
+            self.check_github_auth()
+
             self.log("🔗 Buscando link do GitHub...")
             self.remote_url = self.get_remote()
             self.show_remote(self.remote_url)
 
-            # Garante que estamos dentro de um repositório.
             check = subprocess.run(
                 ["git", "rev-parse", "--is-inside-work-tree"],
                 cwd=self.folder,
                 capture_output=True,
                 text=True,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                encoding="utf-8",
+                errors="replace",
+                **hidden_process_kwargs()
             )
-
             if check.returncode != 0:
-                raise RuntimeError(
-                    "A pasta selecionada não é um repositório Git."
-                )
+                raise RuntimeError("A pasta selecionada não é um repositório Git.")
 
-            # Descobre a branch atual.
-            branch_code, branch = self.run_git(
-                ["rev-parse", "--abbrev-ref", "HEAD"]
-            )
+            branch_code, branch = self.run_git(["rev-parse", "--abbrev-ref", "HEAD"])
             if branch_code != 0 or not branch.strip():
                 raise RuntimeError("Não foi possível descobrir a branch.")
 
@@ -335,7 +443,7 @@ class GitPoltergeist:
             diff = subprocess.run(
                 ["git", "diff", "--cached", "--quiet"],
                 cwd=self.folder,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                **hidden_process_kwargs()
             )
 
             if diff.returncode == 0:
@@ -353,7 +461,6 @@ class GitPoltergeist:
                 return
 
             message = f"Commit {hoje()}"
-
             self.log(f'[3/4] git commit -m "{message}"')
             code, _ = self.run_git(["commit", "-m", message])
             if code != 0:
@@ -369,7 +476,7 @@ class GitPoltergeist:
                     lambda: messagebox.showwarning(
                         APP_NAME,
                         "O commit foi criado, mas o push falhou.\n\n"
-                        "Verifique a autenticação e o remote do GitHub."
+                        "Se o GitHub não estiver conectado, clique em '🔐 Entrar no GitHub'."
                     )
                 )
                 return
@@ -395,10 +502,12 @@ class GitPoltergeist:
         except Exception as e:
             self.log(f"❌ ERRO: {e}")
             self.set_status("❌ Erro.")
-            self.root.after(
-                0,
-                lambda: messagebox.showerror(APP_NAME, str(e))
-            )
+            self.root.after(0, lambda: messagebox.showerror(APP_NAME, str(e)))
+        finally:
+            self.root.after(0, self._unlock_after_commit)
+
+    def _unlock_after_commit(self):
+        self.running = False
 
 
 def main():
