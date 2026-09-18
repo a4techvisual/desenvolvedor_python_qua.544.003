@@ -1,11 +1,17 @@
-Git Poltergeist v2.0
-├── main.py / main.pyw       -> programa
+Git Poltergeist v2.0 — corrigido
+├── main.py / main.pyw       -> programa principal
 ├── CRIAR_EXE.vbs            -> cria o EXE sem mostrar CMD
 ├── executar.vbs             -> abre o EXE sem mostrar CMD
-├── build_exe.bat             -> alternativa de compilação (não usar para abrir o programa)
-├── Git Poltergeist v2.0.spec
+├── build_exe.bat             -> alternativa de compilação
+├── Git Poltergeist v2.0.spec -> configuração do PyInstaller
 ├── image\                   -> ícone/logo/GIF
-├── index\                   -> arquivos da interface original
+├── index\                   -> página inicial
 └── font\                    -> fontes/estilos
 
-O arquivo executar.bat foi removido para impedir o fluxo de inicialização via CMD.
+Recursos principais:
+- Login GitHub via Git Credential Manager
+- Troca/desconexão de contas
+- Configurações por engrenagem
+- Tipos de commit pré-selecionáveis
+- Histórico dos commits existentes
+- Interface redimensionável sem sobreposição de textos
