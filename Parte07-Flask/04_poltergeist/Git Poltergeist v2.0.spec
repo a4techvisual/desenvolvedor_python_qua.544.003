@@ -1,17 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
-from pathlib import Path
-
-ROOT = Path(SPEC).parent
 
 
 a = Analysis(
-    [str(ROOT / 'main.pyw')],
-    pathex=[str(ROOT)],
+    ['C:/Users/ALUNO/Rômulo Delalíbera Júnior/desenvolvedor_python_qua.544.003/Parte07-Flask/04_poltergeist/main.pyw'],
+    pathex=[],
     binaries=[],
     datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
+    runtime_hooks=[],
     excludes=[],
     noarchive=False,
     optimize=0,
@@ -37,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=[str(ROOT / 'image' / 'image.ico')],
+    icon=['C:/Users/ALUNO/Rômulo Delalíbera Júnior/desenvolvedor_python_qua.544.003/Parte07-Flask/04_poltergeist/image/image.ico'],
 )
