@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.pyw'],
+    ['C:/Users/ALUNO/Rômulo Delalíbera Júnior/desenvolvedor_python_qua.544.003/Parte07-Flask/04_poltergeist/main.pyw'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['image/image.ico'],
+    icon=['C:/Users/ALUNO/Rômulo Delalíbera Júnior/desenvolvedor_python_qua.544.003/Parte07-Flask/04_poltergeist/image/image.ico'],
 )

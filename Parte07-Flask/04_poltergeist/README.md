@@ -28,3 +28,14 @@ Também é possível abrir `executar.vbs`; ele inicia o EXE de forma oculta, sem
 O executável final é criado com PyInstaller em modo `--windowed/--noconsole`. Esse é o modo próprio para aplicações gráficas do Windows sem console.
 
 Para usar o programa em outro PC, gere/leve o EXE e tenha o Git para Windows instalado. A autenticação do GitHub precisa ser feita separadamente em cada PC.
+
+
+## Inicialização sem CMD
+
+Para uso diário, abra diretamente `dist\Git Poltergeist v2.0.exe`. O EXE é compilado com `--windowed --noconsole`. O arquivo `CRIAR_EXE.vbs` também não usa `cmd.exe`: ele chama o Python diretamente e mantém a execução oculta.
+
+O programa faz o Auto Commit ao abrir e o botão `▶ Executar Commit` permite repetir manualmente quando necessário.
+
+
+### Ícone
+O EXE usa o ícone `image/image.ico`, baseado no ícone enviado pelo usuário.
