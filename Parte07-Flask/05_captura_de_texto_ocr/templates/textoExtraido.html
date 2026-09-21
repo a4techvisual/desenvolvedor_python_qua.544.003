@@ -13,15 +13,22 @@
                 <h2 class="card-title text-center mb-4">
                     Resultado da extração de texto
                 </h2>
-                <form action=""method="POST>
-                    <div class=""mb-3">
-                    <label for="texto"
+
+                <div class="mb-3">
+
+                    <label for="texto" class="form-label">
                         Texto extraído da imagem:
                     </label>
 
-                    <textarea class="form-control"name="texto" id="texto" rows="10" required>{{ texto or '' }}</textarea>
-                
-                  
+                    <textarea
+                        class="form-control"
+                        name="texto"
+                        id="texto"
+                        rows="10"
+                    >{{ texto or '' }}</textarea>
+
+                </div>
+
             </div>
 
         </div>
@@ -31,8 +38,3 @@
 </div>
 
 {% endblock %}
-
-
-
-
- 
